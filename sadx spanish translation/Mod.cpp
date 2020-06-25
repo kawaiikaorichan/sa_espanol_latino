@@ -30,6 +30,18 @@ extern "C"
 		WriteData((const char**)0x559872, "Caos 6");
 		WriteData((const char**)0x56037F, "Caos Perfecto");
 		WriteData((const char**)0x587DA4, "CERO");
+		WriteData((const char**)0x62616D, "PUNTAJE MAS ALTO");
+		WriteData((const char**)0x626215, "DOCTOR ROBOTNIK");
+		WriteData((const char**)0x626279, "INICIA");
+		WriteData((const char**)0x6262C9, "TIEMPO");
+		WriteData((const char**)0x6262D8, "CONTEO");
+		WriteData((const char**)0x626401, "FIN DEL JUEGO");
+		WriteData((const char**)0x626458, "FELICIDADES");
+		WriteData((const char**)0x6264C0, "GANAS LA PLUMA DEL GUERRERO");
+		WriteData((const char**)0x6264D3, "GANAS EL MARTILLO LARGO");
+		WriteData((const char**)0x62652A, "TIENES LA PUNTUACION MAS ALTA");
+		WriteData((const char**)0x6283F5, "FIN DEL JUEGO");
+		WriteData((const char**)0x7595DF, "PRESIONA A PARA MATAR AL CHAO");
 		char pathbuf[MAX_PATH];
 		HMODULE HDGUI = GetModuleHandle(L"HD_GUI");
 		//Replace stage titlecard filenames
