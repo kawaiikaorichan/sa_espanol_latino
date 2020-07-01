@@ -13,6 +13,11 @@ DataArray(TitleCardTexture, AdventureTitleCards, 0x91C458, 9);
 DataArray(TitleCardTexture, SubgameTitleCards, 0x91C4A0, 5);
 
 //Macros
+#define ReplacePNG_Common(a) do { \
+	_snprintf_s(pathbuf, LengthOfArray(pathbuf), "%s\\textures\\pvrs\\index.txt", path); \
+	helperFunctions.ReplaceFile("system\\" a ".PVR", pathbuf); \
+} while (0)
+
 #define ReplacePNG_StageS(a) do { \
 	_snprintf_s(pathbuf, LengthOfArray(pathbuf), "%s\\textures\\pvr_stage_sp\\index.txt", path); \
 	helperFunctions.ReplaceFile("system\\" a ".PVR", pathbuf); \
@@ -44,6 +49,9 @@ extern "C"
 		WriteData((const char**)0x7595DF, "PRESIONA A PARA MATAR AL CHAO");
 		char pathbuf[MAX_PATH];
 		HMODULE HDGUI = GetModuleHandle(L"HD_GUI");
+		//PVRs
+		ReplacePNG_Common("ST_064S_SCORE");
+		ReplacePNG_Common("HYOJI_BALLS_E");
 		//Replace stage titlecard filenames
 		//Sonic
 		SonicTitleCards[0].TextureName = "s_stage01_s";
@@ -102,6 +110,8 @@ extern "C"
 		//Spanish stage PVRs
 		if (HDGUI)
 		{
+			ReplacePNG_Common("ST_064S_SCORE");
+			ReplacePNG_Common("HYOJI_BALLS_E");
 			ReplacePNG_StageS("A_STAGE01_S");
 			ReplacePNG_StageS("A_STAGE02_S");
 			ReplacePNG_StageS("A_STAGE03_S");
