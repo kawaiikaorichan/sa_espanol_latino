@@ -1,6 +1,34 @@
-#include "SADXModLoader.h"
-#include <stdio.h>
+#include "pch.h"
 const char MyString[] = "Ass";
+
+Trampoline* LoadRegObjTextures_b = nullptr;
+Trampoline* FreeRegObjTexlists_b = nullptr;
+
+HMODULE DCconversion = GetModuleHandle(L"DCMods_Main");
+
+static NJS_TEXNAME EspGUI_TEXNAME[2] = {};
+static NJS_TEXLIST EspGUI_TEXLIST = { arrayptrandlengthT(EspGUI_TEXNAME, int) };
+
+static void __cdecl LoadRegObjTextures_r(int a1)
+{
+	if (DCconversion)
+	{
+		LoadPVM("Tex_espanol", &EspGUI_TEXLIST);
+		((decltype(LoadRegObjTextures_r)*)LoadRegObjTextures_b->Target())(a1);
+	}
+}
+
+static void __cdecl FreeRegObjTexlists_r()
+{
+	njReleaseTexture(&EspGUI_TEXLIST);
+	((decltype(FreeRegObjTexlists_r)*)FreeRegObjTexlists_b->Target())();
+}
+
+void EspGUI_Init()
+{
+	LoadRegObjTextures_b = new Trampoline(0x4212E0, 0x4212E5, LoadRegObjTextures_r, false);
+	FreeRegObjTexlists_b = new Trampoline(0x420F40, 0x420F45, FreeRegObjTexlists_r, false);
+}
 
 //Arrays
 DataArray(TitleCardTexture, SonicTitleCards, 0x91C358, 10);
@@ -47,8 +75,65 @@ extern "C"
 		WriteData((const char**)0x62652A, "TIENES LA PUNTUACION MAS ALTA");
 		WriteData((const char**)0x6283F5, "FIN DEL JUEGO");
 		WriteData((const char**)0x7595DF, "PRESIONA A PARA MATAR AL CHAO");
+		WriteData((const char**)0x4B544C, "\tAhora puedes jugar con Metal Sonic\nen el modo de prueba.");
+		WriteData((const char**)0x917DFC, "¿Registrar en este botón?"); // sp
+		WriteData((const char**)0x917E10, "Presiona el botón a registrar"); // sp
+		WriteData((const char**)0x90C4AC, "Se terminará la partida y volverá a la\npantalla de selección de personaje. ¿Ok?"); // sp
+		WriteData((const char**)0x90C4C0, "Se terminará el nivel y volverá al \ncampo de aventura. ¿Ok?"); // sp
+		WriteData((const char**)0x90C4D4, "Se terminará la partida y volverá \nal menú principal. ¿Ok?"); // sp
+		WriteData((const char**)0x7D3B5B, "\aLa Piedra del Viento... Parece una llave.\nEl grabado debe significar algo."); // sp
+		WriteData((const char**)0x7D3B10, "\aLa Piedra de Hielo... Parece una llave.\nQuizá pueda usarla en Ruinas Místicas."); // sp
+		WriteData((const char**)0x2BBF540, "\aLa Piedra de Hielo... Parece una llave.\nQuizá pueda usarla en Ruinas Místicas."); // sp
+		WriteData((const char**)0x10D7958, "\t\tBorrado."); // sp
+		WriteData((const char**)0x111CB5C, "\aDice 'Botón destruye-monos'\n"); // sp
+		WriteData((const char**)0x111CB60, "\a'Presiona para destruir.'"); // sp
+		WriteData((const char**)0x111CB30, "\a¡Botón... presionado!"); // sp
+		WriteData((const char**)0x111CB08, "\aEl botón fue accionado,\npero no pasó nada."); // sp
+		WriteData((const char**)0x111CAE0, "\aEl botón fue accionado,\npero no pasó nada."); // sp
+		WriteData((const char**)0x2BC07C0, "\a¡Una tarjeta de empleado!\nAhora puedo entrar en este edificio."); // sp
+		WriteData((const char**)0x2BC07E8, "\aIdentidad comprobada"); // sp
+		WriteData((const char**)0x2BBF480, "\a¡Un pase! Ahora puedo entrar\nen el Circuito Destello."); // sp 
+		WriteData((const char**)0x2BBF468, "\a¡Bienvenido al Circuito Destello!"); // sp
+		WriteData((const char**)0x8033D4, "\a¡Cuidado! ¡Trama algo!"); // sp
+		WriteData((const char**)0x7FD52C, "\a¡Salta y vuelve a presionar el botón de \nsalto para realizar el ataque teledirigido!");
+		WriteData((const char**)0x7FD57C, "\aApunta al punto débil en su cabeza.");
+		WriteData((const char**)0x7FD970, "\a¡Apunta a la cabeza de Caos \ncuando baje la guardia!");
+		WriteData((const char**)0x7FD9C0, "\a¡Planea o usa tu ataque giratorio en lugar \nde los puños para golpear su núcleo!");
+		WriteData((const char**)0x7FDA10, "\a¡Puedes golpear las burbujitas de agua.!");
+		WriteData((const char**)0x7FE460, "\a¡Cuando Caos asome su cabeza, \nes la hora de atacar!");
+		WriteData((const char**)0x7FEBB0, "\aSi pudieras congelar a Caos... \nPiensa en un forma de hacerlo.");
+		WriteData((const char**)0x7FEC08, "Avienta las Eggbombas de Robotnik \na la boca de Caos.");
+		WriteData((const char**)0x7FEC58, "\a¡Apunta a la rana \ny arroja tu anzuelo!"); // sp
+		WriteData((const char**)0x7FECC0, "\a¡Arroja tu anzuelo");
+		WriteData((const char**)0x7FECC8, "\aen cuanto Caos se aproxime a ti!");
+		WriteData((const char**)0x801D64, "\aEl Egg Hornet es su propio punto débil. \nAtácalo cuando se acerque. ");
+		WriteData((const char**)0x802D20, "\aApunta a las piernas \npara que pierda el equilibrio. ");
+		WriteData((const char**)0x802D30, "\a¡No sólo le des a las piernas, \napunta a la cabina!");
+		WriteData((const char**)0x803494, "\aRobotnik está del otro lado \ndel concentrador de energía.");
+		WriteData((const char**)0x8034A4, "\aUsa ataques teledirigidos");
+		WriteData((const char**)0x8034B4, "\apara llegar a la cabina.");
+		WriteData((const char**)0x8034C4, "\aSube a la rueda de púas \ny alcanzarás la cabina.");
+		WriteData((const char**)0x8046FC, "\aDebe tener algún punto débil.");
+		WriteData((const char**)0x804704, "\a¡Sigue atacando hasta que lo encuentres!");
+		WriteData((const char**)0x80055C, "\aCuando alcances la máxima velocidad \nte volverás una bola ardiente.");
+		WriteData((const char**)0x800564, "\a¡Es el momento de atacar a Caos!");
+		WriteData((const char**)0x2BC5808, "El objetivo es encontrar el");
+		WriteData((const char**)0x2BC580C, "\"objeto de la misión\" en el");
+		WriteData((const char**)0x2BC5810, "campo de aventura. Usa la pista");
+		WriteData((const char**)0x2BC5814, "que se muestra a continuación");
+		WriteData((const char**)0x2BC5818, "para completar la misión.");
+		WriteData((const char**)0x2BC581C, "Al tocar el \"objeto de la");
+		WriteData((const char**)0x2BC5820, "misión\" se mostrará una");
+		WriteData((const char**)0x2BC5824, "pista. Usa esta pista para");
+		WriteData((const char**)0x2BC5828, "averiguar qué debes hacer para");
+		WriteData((const char**)0x2BC582C, "poder completar la misión.");
+		WriteData((const char**)0x2BC5830, "Son 60 misiones para 6");
+		WriteData((const char**)0x2BC5834, "personajes (Sonic, Tails,");
+		WriteData((const char**)0x2BC5838, "Knuckles, Amy, E-102, Big).");
+
 		char pathbuf[MAX_PATH];
 		HMODULE HDGUI = GetModuleHandle(L"HD_GUI");
+		EspGUI_Init();
 		//PVRs
 		ReplacePNG_Common("ST_064S_SCORE");
 		ReplacePNG_Common("HYOJI_BALLS_E");
