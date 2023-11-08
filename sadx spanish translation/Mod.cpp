@@ -1,27 +1,91 @@
 #include "pch.h"
 const char MyString[] = "Ass";
 
+#define ReplacePVM(a, b) helperFunctions.ReplaceFile("system\\" a ".PVM", "system\\" b ".PVM");
+
 Trampoline* LoadRegObjTextures_b = nullptr;
 Trampoline* FreeRegObjTexlists_b = nullptr;
 
 HMODULE DCconversion = GetModuleHandle(L"DCMods_Main");
 
-static NJS_TEXNAME EspGUI_TEXNAME[2] = {};
+static NJS_TEXNAME EspGUI_TEXNAME[47] = {};
 static NJS_TEXLIST EspGUI_TEXLIST = { arrayptrandlengthT(EspGUI_TEXNAME, int) };
+static NJS_TEXNAME EspDC_TEXNAME[21] = {};
+static NJS_TEXLIST EspDC_TEXLIST = { arrayptrandlengthT(EspDC_TEXNAME, int) };
+static NJS_TEXNAME EspDX_TEXNAME[15] = {};
+static NJS_TEXLIST EspDX_TEXLIST = { arrayptrandlengthT(EspDX_TEXNAME, int) };
+static NJS_TEXNAME EspCEAy_TEXNAME[6] = {};
+static NJS_TEXLIST EspCEAy_TEXLIST = { arrayptrandlengthT(EspCEAy_TEXNAME, int) };
+static NJS_TEXNAME EspCEEst_TEXNAME[3] = {};
+static NJS_TEXLIST EspCEEst_TEXLIST = { arrayptrandlengthT(EspCEEst_TEXNAME, int) };
+static NJS_TEXNAME EspCEP_TEXNAME[6] = {};
+static NJS_TEXLIST EspCEP_TEXLIST = { arrayptrandlengthT(EspCEP_TEXNAME, int) };
 
 static void __cdecl LoadRegObjTextures_r(int a1)
 {
+	LoadPVM("EspGUI", &EspGUI_TEXLIST);
+
 	if (DCconversion)
 	{
-		LoadPVM("Tex_espanol", &EspGUI_TEXLIST);
-		((decltype(LoadRegObjTextures_r)*)LoadRegObjTextures_b->Target())(a1);
+		LoadPVM("Tex_espanol", &EspDC_TEXLIST);
 	}
+
+	else
+	{
+		LoadPVM("Tex_espanolDX", &EspDX_TEXLIST);
+	}
+	((decltype(LoadRegObjTextures_r)*)LoadRegObjTextures_b->Target())(a1);
 }
 
 static void __cdecl FreeRegObjTexlists_r()
 {
 	njReleaseTexture(&EspGUI_TEXLIST);
+	njReleaseTexture(&EspDC_TEXLIST);
+	njReleaseTexture(&EspDX_TEXLIST);
+	njReleaseTexture(&EspCEAy_TEXLIST);
+	njReleaseTexture(&EspCEEst_TEXLIST);
+	njReleaseTexture(&EspCEP_TEXLIST);
 	((decltype(FreeRegObjTexlists_r)*)FreeRegObjTexlists_b->Target())();
+}
+
+void __cdecl UnloadLevelTextures_r(uint16_t stage);
+Trampoline UnloadLevelTextures_t(0x421040, 0x421045, UnloadLevelTextures_r);
+void __cdecl UnloadLevelTextures_r(uint16_t stage)
+{
+	if (stage == LevelAndActIDs_StationSquare1)
+	{
+		njReleaseTexture(&EspCEAy_TEXLIST);
+	}
+	else if (stage == LevelAndActIDs_StationSquare2)
+	{
+		njReleaseTexture(&EspCEEst_TEXLIST);
+	}
+	else if (stage == LevelAndActIDs_StationSquare4)
+	{
+		njReleaseTexture(&EspCEP_TEXLIST);
+	}
+
+	((decltype(UnloadLevelTextures_r)*)UnloadLevelTextures_t.Target())(stage);
+}
+
+void __cdecl LoadLevelTextures_r(uint16_t stage);
+Trampoline LoadLevelTextures_t(0x4215B0, 0x4215B7, LoadLevelTextures_r);
+void __cdecl LoadLevelTextures_r(uint16_t stage)
+{
+	if (stage == LevelAndActIDs_StationSquare1)
+	{
+		LoadPVM("AyuntamientoDX", &EspCEAy_TEXLIST);
+	}
+	else if (stage == LevelAndActIDs_StationSquare2)
+	{
+		LoadPVM("EstacionDX", &EspCEEst_TEXLIST);
+	}
+	else if (stage == LevelAndActIDs_StationSquare4)
+	{
+		LoadPVM("CEprincipalDX", &EspCEP_TEXLIST);
+	}
+
+	((decltype(LoadLevelTextures_r)*)LoadLevelTextures_t.Target())(stage);
 }
 
 void EspGUI_Init()
@@ -133,6 +197,8 @@ extern "C"
 
 		char pathbuf[MAX_PATH];
 		HMODULE HDGUI = GetModuleHandle(L"HD_GUI");
+		HMODULE HDTex = GetModuleHandle(L"AI_char_text");
+		HMODULE HDDXText = GetModuleHandle(L"AI_HDDX");
 		EspGUI_Init();
 		//PVRs
 		ReplacePNG_Common("ST_064S_SCORE");
@@ -238,6 +304,25 @@ extern "C"
 			ReplacePNG_StageS("T_MISTICRUIN_S");
 			ReplacePNG_StageS("T_STATIONSQUARE_S");
 		}
+		ReplacePVM("SS_KANBAN", "ric_hamb");
+		ReplacePVM("E102TIME", "E102TIEMPO");
+		if (HDTex)
+		{
+			ReplacePVM("FISHING", "PESCA_HD");
+		}
+		else if (HDDXText)
+		{
+			ReplacePVM("FISHING", "PESCA_HD");
+		}
+		else
+		{
+			ReplacePVM("FISHING", "PESCA");
+		}
+	}
+
+	__declspec(dllexport) void __cdecl OnFrame()
+	{
+		
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
