@@ -93,6 +93,8 @@ static const D3DRENDERSTATETYPE D3DRENDERSTATE_TYPES[] = {
 
 static HRESULT reset_parameters()
 {
+	FreePolyBuffers();
+
 	// Grab the current FOV before making any changes.
 	auto fov = fov::get_fov();
 
@@ -207,6 +209,8 @@ static HRESULT reset_parameters()
 	TransformAndViewportInvalid = 1;
 	Direct3D_SetViewportAndTransform();
 
+	InitPolyBuffers(polybuff::alignment_probably, polybuff::count, polybuff::ptr);
+
 	RaiseEvents(modRenderDeviceReset);
 
 	return result;
@@ -216,15 +220,17 @@ inline void setup_vsync()
 {
 	auto& p = PresentParameters;
 
+	bool d3d9 = GetModuleHandle(L"d3d9.dll") != nullptr;
+
 	if (vsync)
 	{
 		p.SwapEffect = D3DSWAPEFFECT_COPY_VSYNC;
-		p.FullScreen_PresentationInterval = IsWindowed ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_ONE;
+		p.FullScreen_PresentationInterval = (IsWindowed && !d3d9) ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_ONE;
 	}
 	else
 	{
 		p.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		p.FullScreen_PresentationInterval = IsWindowed ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_IMMEDIATE;
+		p.FullScreen_PresentationInterval = (IsWindowed && !d3d9) ? D3DPRESENT_INTERVAL_DEFAULT : D3DPRESENT_INTERVAL_IMMEDIATE;
 	}
 }
 

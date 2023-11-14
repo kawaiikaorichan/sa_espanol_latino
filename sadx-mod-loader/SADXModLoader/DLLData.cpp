@@ -109,6 +109,11 @@ static void ProcessActionArrayDLL(const IniGroup* group, void* exp)
 	}
 }
 
+static void ProcessMotionArrayDLL(const IniGroup* group, void* exp)
+{
+	((NJS_MOTION**)exp)[group->getInt("Index")] = (NJS_MOTION*)dlllabels[group->getString("Label")];
+}
+
 using dlldatafunc_t = void(__cdecl*)(const IniGroup* group, void* exp);
 
 static const unordered_map<string, dlldatafunc_t> dlldatafuncmap = {
@@ -123,6 +128,7 @@ static const unordered_map<string, dlldatafunc_t> dlldatafuncmap = {
 	{ "morph",             ProcessMorphDLL },
 	{ "modelsarray",       ProcessModelsArrayDLL },
 	{ "actionarray",       ProcessActionArrayDLL },
+	{ "motionarray",       ProcessMotionArrayDLL },
 };
 
 /*
@@ -225,11 +231,18 @@ void ProcessDLLData(const wchar_t* filename, const wstring& mod_dir)
 	}
 	
 	dlllabels.clear();
+	bool sonicReplaced = false;
 	group = dlldata->getGroup("Files");
 
 	for (const auto& iter : *group)
 	{
 		auto type = dllfilefuncmap.find(split(iter.second, '|')[0]);
+
+		std::string str = ("figure/sonic/models/");
+		if (iter.first.find(str) != string::npos)
+		{
+			sonicReplaced = true;
+		}
 
 		if (type != dllfilefuncmap.end())
 		{
@@ -258,11 +271,14 @@ void ProcessDLLData(const wchar_t* filename, const wstring& mod_dir)
 		}
 	}
 
+	//fix Sonic hand not welded with the crystal ring
+	if (sonicReplaced)
+		SONIC_OBJECTS[63]->sibling = SONIC_OBJECTS[4];
+
 	delete dlldata;
 }
 
-void SetChrmodelsDLLHandle(HMODULE handle)
+void SetDLLHandle(const wchar_t* name, HMODULE handle)
 {
-	dllhandles[L"CHRMODELS_orig"] = handle;
-	dllhandles[L"CHRMODELS"] = handle;
+	dllhandles[name] = handle;
 }

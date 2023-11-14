@@ -30,7 +30,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <string>
 
 #include "direct3d.h"
 #include "ninja.h"
@@ -45,6 +44,7 @@
 #include "uiscale.h"
 #include "hudscale.h"
 #include "bgscale.h"
+#include "FunctionHook.h"
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf _snprintf

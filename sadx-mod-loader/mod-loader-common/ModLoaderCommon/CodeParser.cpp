@@ -182,7 +182,7 @@ inline BOOL WriteData(T* writeaddress, const T& data)
 template <typename T, size_t N>
 inline BOOL WriteData(void* writeaddress, const T (&data)[N], SIZE_T* byteswritten)
 {
-	return WriteData(writeaddress, data, SizeOfArray(data), byteswritten);
+	return WriteData(writeaddress, data, sizeof(T) * N, byteswritten);
 }
 
 template <typename T, size_t N>
@@ -218,6 +218,34 @@ inline BOOL WriteData(void* address, const char data, int count, SIZE_T* byteswr
 inline BOOL WriteData(void* address, char data, int count)
 {
 	return WriteData(address, data, count, nullptr);
+}
+
+/**
+ * Write a JMP instruction to an arbitrary address.
+ * @param writeaddress Address to insert the JMP instruction.
+ * @param funcaddress Address to JMP to.
+ * @return Nonzero on success; 0 on error (check GetLastError()).
+ */
+static inline BOOL WriteJump(void* writeaddress, void* funcaddress)
+{
+	uint8_t data[5];
+	data[0] = 0xE9; // JMP DWORD (relative)
+	*(int32_t*)(data + 1) = (uint32_t)funcaddress - ((uint32_t)writeaddress + 5);
+	return WriteData(writeaddress, data);
+}
+
+/**
+ * Write a CALL instruction to an arbitrary address.
+ * @param writeaddress Address to insert the CALL instruction.
+ * @param funcaddress Address to CALL.
+ * @return Nonzero on success; 0 on error (check GetLastError()).
+ */
+static inline BOOL WriteCall(void* writeaddress, void* funcaddress)
+{
+	uint8_t data[5];
+	data[0] = 0xE8; // CALL DWORD (relative)
+	*(int32_t*)(data + 1) = (uint32_t)funcaddress - ((uint32_t)writeaddress + 5);
+	return WriteData(writeaddress, data);
 }
 
 template <typename T>
@@ -556,6 +584,12 @@ int CodeParser::processCodeList_int(const list<Code>& codes, int regnum)
 				break;
 			case writenop:
 				WriteData(&addr->u8, 0x90u, it->value.u32);
+				break;
+			case writejump:
+				WriteJump(addr, (void*)it->value.u32);
+				break;
+			case writecall:
+				WriteCall(addr, (void*)it->value.u32);
 				break;
 			case writeoff:
 				WriteData(&addr->u32, it->repeatcount, it->value.u32 + offset);

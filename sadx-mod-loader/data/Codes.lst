@@ -1,12 +1,26 @@
+Patch "Free Camera Fix"
+write16 00438330 0x0D81
+write16 00434870 0x0D81
+
 Patch "Allow Dynamic Light Direction Globally"
 writenop 00412536 6
 writenop 00412544 6
+
+Code "Egg Carrier Ocean Music"
+ifmask32 03C62394 0x1
+	write8 0051BE03 32
+else
+	write8 0051BE03 31
+endif
 
 Code "Infinite Rings"
 write16 03B0F0E4 999
 
 Code "Infinite Lives"
 write8 03B0EF34 99
+
+Patch "Disable Lives Bonus"
+writenop 00425C28 5
 
 Code "Low Time"
 write8 03B0EF48 0
@@ -38,6 +52,13 @@ ifmask32 03B0E9D0 0x4
 	endif
 endif
 
+Patch "Don't Lose Rings When Hit"
+writenop 0045072D 5
+write16 00450734 0xE990
+
+Code "Player can't Get Hurt"
+write8 00418E62 0
+
 Code "Have Invincibility"
 or16 p03B42E30|20|C0|6 0x8000
 
@@ -50,8 +71,17 @@ or16 p03B42E30|20|C0|4 0x7FFF
 Patch "Disable Music"
 write8 0091268C 0
 
+Code "Disable Subtitles (Events)"
+write8 03ABE134 0
+
 Patch "Disable Voices"
 write8 00425710 0xC3
+
+Patch "Disable Videos"
+write32 005130A0 0x33EC8B55 ; return (n > 0 ? 0 : -1);
+write32 005130A4 0x084539C0 
+write32 005130A8 0x48C09F0F
+write32 005130AC 0xCCCCC35D
 
 Code "Infinite Underwater Time"
 write16 p03B42E30|20|C0|C 0
@@ -102,12 +132,6 @@ Code "D-Pad Down to Decrease Gravity"
 ifmask32 03B0E9D0 0x20
 	divfloat 03B0F0FC 1.05
 endif
-
-Patch "Tails Can Play Emerald Coast (BREAKS SAVE)"
-write8 004F6B02 0xEB
-
-Patch "Don't Lose Rings When Hit"
-writenop 00425AB0 9
 
 Patch "Walk on Water"
 writenop 004496E1 6
@@ -253,7 +277,7 @@ write8 00457D30 0xC3 ; Demo Press Start
 write8 0071B210 0xC3 ; Chao Player Action
 
 Patch "Skip All Cutscenes"
-writenop 004311CA 0x2
+writenop 00431521 2
 
 Patch "Can Always Skip Credits"
 writenop 00641232 2
@@ -295,3 +319,25 @@ write8 007E6FE6 40
 write8 007E6FE8 40
 write8 007E6FEA 40
 write8 007E6FEC 40
+
+Patch "Disable Auto Hints"
+write8 007A1BE0 0xC3
+
+Patch "Increase Rivals Fight HP"
+write8 004B663C 0x7
+write8 004B655A 0x8
+write8 004B65FB 0x8
+write8 004D5535 0x8
+write8 004D5578 0x7
+write8 004D54AB 0x8
+write8 004D5FD8 0x8
+write8 004D601A 0x7
+write8 004D5F24 0x8
+write8 004B6399 0x8
+
+Patch "More Cars in Speed Highway 3"
+write8 00612148 0x12
+write32 0061214D 0x0026AA93C
+
+Patch "Disable Attract Player"
+write8 00442120 0xC3

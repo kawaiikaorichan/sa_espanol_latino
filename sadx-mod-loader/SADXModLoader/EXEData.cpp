@@ -165,6 +165,47 @@ static uint8_t ParseCharacterFlags(const string& str)
 	return flag;
 }
 
+static const unordered_map<string, uint8_t> lspaletteflagsnamemap = {
+	{ "Enabled",             0x01 },
+	{ "UseLSLightDirection", 0x02 },
+	{ "IgnoreDirection",     0x04 },
+	{ "OverrideLastLight",   0x08 },
+	{ "Unknown",             0x10 },
+	{ "Unknown20",           0x20 },
+	{ "Unknown20",           0x40 },
+	{ "Unknown80",           0x80 },
+};
+
+static uint8_t ParseLSPaletteFlags(const string& str)
+{
+	vector<string> strflags = split(str, ',');
+	uint8_t flag = 0;
+	for (const auto& strflag : strflags)
+	{
+		string s = trim(strflag);
+		auto ch = lspaletteflagsnamemap.find(s);
+
+		if (ch != lspaletteflagsnamemap.end())
+		{
+			flag |= ch->second;
+		}
+	}
+	return flag;
+}
+
+static const unordered_map<string, uint8_t> lslighttypesnamemap = {
+	{ "Character",    0 },
+	{ "CharacterAlt", 6 },
+	{ "Boss",         8 },
+};
+
+static uint8_t ParseLSPaletteTypes(const string & str)
+{
+	string str2 = trim(str);
+	auto lv = lslighttypesnamemap.find(str2);
+	return lv != lslighttypesnamemap.end() ? lv->second : (uint8_t)strtol(str.c_str(), nullptr, 10);
+}
+
 static const unordered_map<string, uint8_t> languagesnamemap = {
 	{ "japanese", Languages_Japanese },
 	{ "english",  Languages_English },
@@ -197,7 +238,7 @@ static string UnescapeNewlines(const string& str)
 	string result;
 	result.reserve(str.size());
 
-	for (unsigned int c = 0; c < str.size(); c++)
+	for (size_t c = 0; c < str.size(); c++)
 	{
 		switch (str[c])
 		{
@@ -923,10 +964,10 @@ static void ProcessRecapScreenINI(const IniGroup* group, const wstring& mod_dir)
 		return;
 	}
 
-	addr = (RecapScreen**)((int)addr + 0x400000);
+	addr = (RecapScreen**)((intptr_t)addr + 0x400000);
 	const wstring pathbase = mod_dir + L'\\' + group->getWString("filename") + L'\\';
 
-	for (unsigned int l = 0; l < LengthOfArray(languagenames); l++)
+	for (size_t l = 0; l < LengthOfArray(languagenames); l++)
 	{
 		auto* list = new RecapScreen[length];
 		for (int i = 0; i < length; i++)
@@ -939,10 +980,10 @@ static void ProcessRecapScreenINI(const IniGroup* group, const wstring& mod_dir)
 			auto inidata = new IniFile(filename);
 
 			vector<string> strs = split(inidata->getString("", "Text"), '\n');
-			size_t numents = strs.size();
+			const size_t numents = strs.size();
 			list[i].TextData = new const char* [numents];
 
-			for (unsigned int j = 0; j < numents; j++)
+			for (size_t j = 0; j < numents; j++)
 			{
 				list[i].TextData[j] = strdup(DecodeUTF8(strs[j], l, codepage).c_str());
 			}
@@ -971,10 +1012,10 @@ static void ProcessNPCTextINI(const IniGroup* group, const wstring& mod_dir)
 		return;
 	}
 
-	addr = (HintText_Entry**)((int)addr + 0x400000);
+	addr = (HintText_Entry**)((intptr_t)addr + 0x400000);
 	const wstring pathbase = mod_dir + L'\\' + group->getWString("filename") + L'\\';
 
-	for (unsigned int l = 0; l < LengthOfArray(languagenames); l++)
+	for (size_t l = 0; l < LengthOfArray(languagenames); l++)
 	{
 		auto* list = new HintText_Entry[length];
 		for (int i = 0; i < length; i++)
@@ -1173,7 +1214,7 @@ static void ProcessDeathZoneINI(const IniGroup* group, const wstring& mod_dir)
 
 		wchar_t dzpath[MAX_PATH];
 		if (dzdata->hasKey(key, "Filename"))
-			swprintf(dzpath, LengthOfArray(dzpath), L"%s\\%s", dzinipath, dzdata->getWString(key, "Filename")); // .sa1mdl part added already
+			swprintf(dzpath, LengthOfArray(dzpath), L"%s\\%s", dzinipath, dzdata->getWString(key, "Filename").c_str()); // .sa1mdl part added already
 		else
 			swprintf(dzpath, LengthOfArray(dzpath), L"%s\\%u.sa1mdl", dzinipath, i);
 		auto* dzmdl = new ModelInfo(dzpath);
@@ -1435,8 +1476,8 @@ static void ProcessPaletteLightListINI(const IniGroup* group, const wstring& mod
 
 		le_plyrPal[i].stgNo = (char)ParseLevelID(entdata->getString("Level"));
 		le_plyrPal[i].actNo = (char)entdata->getInt("Act");
-		le_plyrPal[i].chrNo = (char)entdata->getInt("Type");
-		le_plyrPal[i].flgs= (char)entdata->getInt("Flags");
+		le_plyrPal[i].chrNo = (char)ParseLSPaletteTypes(entdata->getString("Type"));
+		le_plyrPal[i].flgs = (char)ParseLSPaletteFlags(entdata->getString("Flags"));
 		ParseVertex(entdata->getString("Direction"), le_plyrPal[i].vec);		
 		le_plyrPal[i].dif = entdata->getFloat("Diffuse");
 		ParseRGB(entdata->getString("Ambient"), le_plyrPal[i].amb);
@@ -1453,6 +1494,65 @@ static void ProcessPaletteLightListINI(const IniGroup* group, const wstring& mod
 
 	delete inidata;
 
+}
+
+static void ProcessFogDataINI(const IniGroup* group, const wstring& mod_dir)
+{
+	if (!group->hasKeyNonEmpty("filename"))
+	{
+		return;
+	}
+
+	int count = group->getInt("count");
+	auto addr = (FogData**)group->getIntRadix("address", 16);
+
+	if (addr == nullptr)
+	{
+		return;
+	}
+
+	addr = (FogData**)((int)addr + 0x400000);
+
+	wchar_t filename[MAX_PATH]{};
+	swprintf(filename, LengthOfArray(filename), L"%s\\%s",
+		mod_dir.c_str(), group->getWString("filename").c_str());
+
+	auto inidata = new IniFile(filename);
+
+	vector<FogData> ents;
+
+	for (int i = 0; i < count; i++)
+	{
+		char key[8]{};
+		snprintf(key, sizeof(key), "%d", i);
+
+		if (!inidata->hasGroup(key))
+		{
+			*addr++ = nullptr;
+			continue;
+		}
+
+		const IniGroup* const entdata = inidata->getGroup(key);
+		auto* entry = new FogData[3];
+		// Far
+		entry[0].Toggle = entdata->getInt("FogEnabledHigh");
+		entry[0].Layer = entdata->getFloat("FogStartHigh");
+		entry[0].Distance = entdata->getFloat("FogEndHigh");
+		entry[0].Color = (((entdata->getInt("ColorA_High") & 0x0ff) << 24 ) | (entdata->getInt("ColorR_High") & 0x0ff) << 16) | ((entdata->getInt("ColorG_High") & 0x0ff) << 8) | (entdata->getInt("ColorB_High") & 0x0ff);
+		// Medium
+		entry[1].Toggle = entdata->getInt("FogEnabledMedium");
+		entry[1].Layer = entdata->getFloat("FogStartMedium");
+		entry[1].Distance = entdata->getFloat("FogEndMedium");
+		entry[1].Color = (((entdata->getInt("ColorA_Medium") & 0x0ff) << 24) | (entdata->getInt("ColorR_Medium") & 0x0ff) << 16) | ((entdata->getInt("ColorG_Medium") & 0x0ff) << 8) | (entdata->getInt("ColorB_Medium") & 0x0ff);
+		// Near
+		entry[2].Toggle = entdata->getInt("FogEnabledLow");
+		entry[2].Layer = entdata->getFloat("FogStartLow");
+		entry[2].Distance = entdata->getFloat("FogEndLow");
+		entry[2].Color = (((entdata->getInt("ColorA_Low") & 0x0ff) << 24) | (entdata->getInt("ColorR_Low") & 0x0ff) << 16) | ((entdata->getInt("ColorG_Low") & 0x0ff) << 8) | (entdata->getInt("ColorB_Low") & 0x0ff);
+		*addr++ = entry;
+	}
+
+	delete inidata;
 }
 
 static void ProcessWeldListINI(const IniGroup* group, const wstring& mod_dir)
@@ -1647,7 +1747,7 @@ static const unordered_map<string, exedatafunc_t> exedatafuncmap = {
 	{ "animation",          ProcessAnimationINI },
 	{ "objlist",            ProcessObjListINI },
 	{ "startpos",           ProcessStartPosINI },
-	{ "texlist",            ProcessTexListINI },
+	{ "texturedata",        ProcessTexListINI },
 	{ "leveltexlist",       ProcessLevelTexListINI },
 	{ "triallevellist",     ProcessTrialLevelListINI },
 	{ "bosslevellist",      ProcessBossLevelListINI },
@@ -1669,6 +1769,7 @@ static const unordered_map<string, exedatafunc_t> exedatafuncmap = {
 	{ "weldlist",           ProcessWeldListINI },
 	{ "creditstextlist",    ProcessCreditsTextListINI },
 	{ "physicsdata",		ProcessPhysicsDataINI },
+	{ "fogdatatable",		ProcessFogDataINI },
 	// { "bmitemattrlist",     ProcessBMItemAttrListINI },
 };
 
