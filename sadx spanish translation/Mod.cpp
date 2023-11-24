@@ -4,6 +4,19 @@ const char MyString[] = "Ass";
 #define ReplacePVM(a, b) helperFunctions.ReplaceFile("system\\" a ".PVM", "system\\" b ".PVM");
 #define ReplaceTex(pvm, pvr, folder, pngname, gbix, x, y) helperFunctions.ReplaceTexture(pvm, pvr, (std::string(path) + "\\textures\\" folder "\\" pngname ".png").c_str(), gbix, x, y);
 
+int VoiceVolumeConv = 0;
+
+int CalculateVolume_SADXStyle(int percent, int mode)
+{
+	// 0 for music, 1 for voices
+	if (mode == 1)
+		return 100 * (97 * percent / 100 - 100);
+	else
+		return 100 * (89 * percent / 100 - 100);
+}
+
+DataPointer(int, VoiceVolumeBK, 0x3ABDF90);
+
 enum Doblaje { Neutro, Mexicano, Chileno };
 
 static int Dub = Neutro;
@@ -34,6 +47,8 @@ extern "C"
 	__declspec(dllexport) __declspec(dllexport) void __cdecl Init(const char* path, const HelperFunctions& helperFunctions)
 	{
 		const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
+
+		VoiceVolumeConv = CalculateVolume_SADXStyle(GetPrivateProfileIntA("sonicDX", "voicev", 100, ".\\sonicDX.ini"), 1) + 6E0000;
 
 		std::string Dub_String = "Neutro";
 		Dub_String = config->getString("Opciones", "Localización", "Neutro");
@@ -541,22 +556,31 @@ extern "C"
 		ReplacePVM("SCORE_SHOOT_E_DC", "SCORE_SHOOT_E_sp");
 		ReplacePVM("SCORE_SHOOT_E_HD", "SCORE_SHOOT_E_sp");
 
-		helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0717.wma", "system\\sounddata\\voice_us\\wma\\0492.wma");
-
 		if (Dub == Mexicano)
 		{
 			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0244.wma", "system\\sounddata\\voice_us\\wma\\0244m.wma");
 			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0251.wma", "system\\sounddata\\voice_us\\wma\\0251m.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0866.wma", "system\\sounddata\\voice_us\\wma\\0866m.wma");
 		}
 		else if (Dub == Chileno)
 		{
 			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0244.wma", "system\\sounddata\\voice_us\\wma\\0244c.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0606.wma", "system\\sounddata\\voice_us\\wma\\0606c.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0681.wma", "system\\sounddata\\voice_us\\wma\\0681c.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\1034.wma", "system\\sounddata\\voice_us\\wma\\1034c.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\1068.wma", "system\\sounddata\\voice_us\\wma\\1068c.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\1087.wma", "system\\sounddata\\voice_us\\wma\\1087c.wma");
 		}
 		else
 		{
 			return;
 		}
+	}
 
+	__declspec(dllexport) void __cdecl OnFrame()
+	{
+		VoiceVolume = VoiceVolumeConv;
+		VoiceVolumeBK = VoiceVolumeConv;
 	}
 
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
