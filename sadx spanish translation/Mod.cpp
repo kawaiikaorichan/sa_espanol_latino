@@ -4,6 +4,7 @@ const char MyString[] = "Ass";
 #define ReplacePVM(a, b) helperFunctions.ReplaceFile("system\\" a ".PVM", "system\\" b ".PVM");
 #define ReplaceTex(pvm, pvr, folder, pngname, gbix, x, y) helperFunctions.ReplaceTexture(pvm, pvr, (std::string(path) + "\\textures\\" folder "\\" pngname ".png").c_str(), gbix, x, y);
 
+int VoiceVolumeBoost = 5100;
 int VoiceVolumeConv = 0;
 
 int CalculateVolume_SADXStyle(int percent, int mode)
@@ -48,10 +49,11 @@ extern "C"
 	{
 		const IniFile* config = new IniFile(std::string(path) + "\\config.ini");
 
-		VoiceVolumeConv = CalculateVolume_SADXStyle(GetPrivateProfileIntA("sonicDX", "voicev", 100, ".\\sonicDX.ini"), 1) + 6E0000;
+		VoiceVolumeBoost = config->getInt("Volumen", "VoiceVolumeBoost", 5100);
+		VoiceVolumeConv = CalculateVolume_SADXStyle(GetPrivateProfileIntA("sonicDX", "voicev", 100, ".\\sonicDX.ini"), 1) + VoiceVolumeBoost;
 
 		std::string Dub_String = "Neutro";
-		Dub_String = config->getString("Opciones", "Localización", "Neutro");
+		Dub_String = config->getString("Opciones", "Localizacion", "Neutro");
 
 		if (Dub_String == "Neutro") Dub = Neutro;
 		if (Dub_String == "Mexicano") Dub = Mexicano;
