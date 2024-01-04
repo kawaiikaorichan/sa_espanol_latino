@@ -20,6 +20,7 @@ DataPointer(int, VoiceVolumeBK, 0x3ABDF90);
 
 enum Doblaje { Neutro, Mexicano, Chileno };
 
+static bool MusicaDub = true;
 static int Dub = Neutro;
 
 //Arrays
@@ -54,6 +55,7 @@ extern "C"
 
 		std::string Dub_String = "Neutro";
 		Dub_String = config->getString("Opciones", "Localizacion", "Neutro");
+		MusicaDub = config->getBool("Opciones", "MusicaDub", true);
 
 		if (Dub_String == "Neutro") Dub = Neutro;
 		if (Dub_String == "Mexicano") Dub = Mexicano;
@@ -576,6 +578,13 @@ extern "C"
 		else
 		{
 			return;
+		}
+
+		if (MusicaDub)
+		{
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\chaos_p1.wma", "system\\sounddata\\bgm\\wma\\chaos_p1_s.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\mainthem.wma", "system\\sounddata\\bgm\\wma\\mainthem_s.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\sprsonic.wma", "system\\sounddata\\bgm\\wma\\sprsonic_s.wma");
 		}
 	}
 
