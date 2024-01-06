@@ -33,6 +33,8 @@ FunctionPointer(bool, ChkPause, (), 0x414D70); // Check if the game is paused
 FunctionPointer(Bool, ChkGameMode, (), 0x414D90); // Check if in game
 FunctionPointer(void*, MAlloc, (int size), 0x40B220); // Allocate memory
 FunctionPointer(void*, CAlloc, (int count, int size), 0x0040B2D0); // Allocate memory
+FunctionPointer(void*, malloc_0, (size_t Size), 0x00645002);
+FunctionPointer(void*, SOCFree, (void* pBlock), 0x00644E51);
 VoidFunc(Clear, 0x0040BF30);
 VoidFunc(Reset, 0x0040BF40);
 TaskFunc(LoopTaskC, 0x40B420); // Run all the children of a task
@@ -141,6 +143,13 @@ FunctionPointer(void, njPrintF, (int position, float value, signed int precision
 FunctionPointer(void, njPrint, (signed int position, const char* text, ...), 0x780B30); // Prints a formatted string
 FunctionPointer(void, njPrintSize, (unsigned __int16 size), 0x7808C0); // Sets debug font size
 
+// Saves
+FunctionPointer(Uint8, CountSaveNum, (), 0x00505050); // Builds save list
+FunctionPointer(void, AddLineList, (LPCSTR filename, _WIN32_FIND_DATAA a2), 0x00504E50); // Adds save file to the list
+FunctionPointer(void, dsVMSLoadGame_do, (), 0x00421DE0); // Loads current save file
+VoidFunc(CreateSaveData, 0x0042D630);
+FunctionPointer(Uint16, createCRC, (Uint8* data), 0x0042CF90);
+
 static const void* const isTextureNGPtr = (void*)0x403250;
 static inline BOOL isTextureNG(NJS_TEXLIST* tl) // Check if the texlist is valid
 {
@@ -209,6 +218,7 @@ FunctionPointer(void, lig_setGjPaletteNo___, (int no), 0x412160);
 FunctionPointer(void, lig_resetGjPaletteNo___, (signed int no), 0x412400);
 
 // Input
+VoidFunc(input_init, 0x0040F350);
 VoidFunc(PadReadOn, 0x40EF40); // EnableControl
 VoidFunc(PadReadOff, 0x40EF50); // DisableControl
 FunctionPointer(void, PadReadOnP, (unsigned __int8 pno), 0x40EF70); // EnableController
@@ -448,11 +458,14 @@ FunctionPointer(BOOL, EnemyCheckDamage, (taskwk* twp, enemywk* ewp), 0x4CE030); 
 FunctionPointer(void, EnemyCheckFloor, (taskwk* twp, enemywk* ewp), 0x4CE100); // Check ground status and draw shadow
 FunctionPointer(void, EnemyCheckGroundCollision, (taskwk* twp, enemywk* ewp), 0x4CE370); // Main enemy collision and shadow routine
 TaskFunc(UniDestructor, 0x4E21D0); // Destructor task for every enemy, does nothing
+
 FunctionPointer(BOOL, CalcMMMatrix, (NJS_MATRIX_PTR impmat, NJS_ACTION* actptr, float mtnfrm, unsigned int srcnmb, NJS_MATRIX_PTR ansmat), 0x4B81F0); // Get matrix (in ansmat) of a node (srcnmb) of an animated model using impmat as base matrix; stores all matrices in a buffer for GetMMMatrix
 FunctionPointer(BOOL, GetMMMatrix, (unsigned int srcnmb, NJS_MATRIX_PTR ansmat), 0x4B82D0); // Get stored matrix (in ansmat) of node (srcnmb), use this once CalcMMMatrix has been called to speed it up
 FunctionPointer(void, clrObjFlags, (NJS_OBJECT** obj, unsigned int flag), 0x4399D0); // Set a flag in the evalflag of an object
 FunctionPointer(void, setObjFlags, (NJS_OBJECT** obj, unsigned int flag), 0x4399A0); // Unset a flag from the evalflag of an object
 FunctionPointer(void, CreateFire, (NJS_VECTOR* pos, NJS_VECTOR* velo, float scl), 0x004CB060); // Creates Unidus fire particles
+FunctionPointer(NJS_OBJECT*, ScanMotionModel, (NJS_OBJECT* a1, SMMparams* a2), 0x4B7D00);
+FunctionPointer(void, ListTheObjectTreeByTheEnd, (NJS_OBJECT* a1, NJS_OBJECT** a2), 0x439FC0);
 
 static const void* const calcAimPosPtr = (void*)0x7B1720;
 static inline void calcAimPos(taskwk* twp, enemywk* ewp)

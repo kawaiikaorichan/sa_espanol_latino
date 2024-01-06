@@ -12,7 +12,7 @@
 #include "WeightInfo.h"
 
  // SADX Mod Loader API version.
-static const int ModLoaderVer = 18;
+static const int ModLoaderVer = 19;
 struct PatchInfo
 {
 	void* address;
@@ -44,7 +44,6 @@ struct LoaderSettings
 	bool DebugScreen;
 	bool DebugFile;
 	bool DebugCrashLog;
-	bool DisableCDCheck;
 	int HorizontalResolution;
 	int VerticalResolution;
 	bool ForceAspectRatio;
@@ -65,11 +64,9 @@ struct LoaderSettings
 	bool ScaleHud;
 	int BackgroundFillMode;
 	int FmvFillMode;
-	bool DisablePolyBuff;
+	bool EnableBassMusic;
 	bool EnableBassSFX;
 	int SEVolume;
-	bool DisableMaterialColorFix;
-	bool DisableInterpolationFix;
 	int TestSpawnLevel;
 	int TestSpawnAct;
 	int TestSpawnCharacter;
@@ -81,6 +78,24 @@ struct LoaderSettings
 	int TestSpawnEvent;
 	int TestSpawnGameMode;
 	int TestSpawnSaveID;
+	bool InputMod;
+	// Patches
+	bool HRTFSound;
+	bool CCEF;
+	bool PolyBuff;
+	bool MaterialColorFix;
+	bool NodeLimit;
+	bool FovFix;
+	bool SCFix;
+	bool Chaos2CrashFix;
+	bool ChunkSpecFix;
+	bool E102PolyFix;
+	bool ChaoPanelFix;
+	bool PixelOffsetFix;
+	bool LightFix;
+	bool KillGbix;
+	bool DisableCDCheck;
+	bool ExtendedSaveSupport;
 };
 
 struct ModDependency
@@ -402,6 +417,19 @@ struct HelperFunctions
 	*
 	*/
 	uint16_t(__cdecl* RegisterVoice)(const char* fileJP, const char* fileEN, uint16_t durationJP, uint16_t durationEN);
+
+	/**
+	* @brief Push Interpolation fix for animations.
+	*
+	* Use this at the beginning of a display function and please disable it at the end after so it doesn't run for all animations in the game.
+	* Requires version >= 19.
+	*
+	*/
+	void(__cdecl* PushInterpolationFix)();
+
+	// Disable interpolation fix for animations, use it at the end of a display function.
+	// Requires version >= 19.
+	void(__cdecl* PopInterpolationFix)();
 };
 
 //static_assert(std::is_standard_layout<HelperFunctions>::value);

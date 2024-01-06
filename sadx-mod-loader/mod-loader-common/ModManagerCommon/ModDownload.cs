@@ -47,7 +47,8 @@ namespace ModManagerCommon
 	public class ModDownload
 	{
 		public ModInfo Info { get; }
-		public readonly ModDownloadType Type;
+        public bool IsChecked { get; set; }
+        public readonly ModDownloadType Type;
 		public readonly string Url;
 		public readonly string Folder;
 		public readonly string Changes;
@@ -59,7 +60,7 @@ namespace ModManagerCommon
 		public string   Name     = string.Empty;
 		public string   Version  = string.Empty;
 		public DateTime Published;
-		public DateTime Updated;
+		public DateTime Updated  = DateTime.Now;
 		public string   ReleaseUrl = string.Empty;
 
 		public event CancelEventHandler DownloadStarted;
@@ -203,7 +204,10 @@ namespace ModManagerCommon
 						}
 					}
 
-					string dataDir = Path.Combine(updatePath, Path.GetFileNameWithoutExtension(filePath));
+					string dataDir = Path.GetFileNameWithoutExtension(filePath);
+					if (dataDir.Length > 20)
+						dataDir = dataDir.Remove(20).TrimEnd(' ');
+					dataDir = Path.Combine(updatePath, dataDir);
 					if (!Directory.Exists(dataDir))
 					{
 						Directory.CreateDirectory(dataDir);
@@ -255,6 +259,7 @@ namespace ModManagerCommon
 							File.Delete(filePath);
 						}
 
+						File.WriteAllText(Path.Combine(Folder, "mod.version"), Updated.ToString(DateTimeFormatInfo.InvariantInfo));
 						return;
 					}
 
