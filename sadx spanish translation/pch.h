@@ -1,16 +1,15 @@
-// pch.h: This is a precompiled header file.
-// Files listed below are compiled only once, improving build performance for future builds.
-// This also affects IntelliSense performance, including code completion and many code browsing features.
-// However, files listed here are ALL re-compiled if any one of them is updated between builds.
-// Do not add files here that you will be updating frequently as this negates the performance advantage.
+// pch.h: este es un archivo de encabezado precompilado.
+// Los archivos que se muestran a continuación se compilan solo una vez, lo que mejora el rendimiento de la compilación en futuras compilaciones.
+// Esto también afecta al rendimiento de IntelliSense, incluida la integridad del código y muchas funciones de exploración del código.
+// Sin embargo, los archivos que se muestran aquí se vuelven TODOS a compilar si alguno de ellos se actualiza entre compilaciones.
+// No agregue aquí los archivos que se vayan a actualizar con frecuencia, ya que esto invalida la ventaja de rendimiento.
 
 #ifndef PCH_H
 #define PCH_H
 
-// add headers that you want to pre-compile here
+// agregue aquí los encabezados que desea precompilar
 #include "framework.h"
 #include "SADXModLoader.h"
 #include "IniFile.hpp"
-#include "Trampoline.h"
 
 #endif //PCH_H

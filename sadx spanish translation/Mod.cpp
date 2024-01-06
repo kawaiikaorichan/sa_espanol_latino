@@ -244,7 +244,7 @@ extern "C"
 			ReplacePNG_StageS("T_MISTICRUIN_S");
 			ReplacePNG_StageS("T_STATIONSQUARE_S");
 		}
-		
+
 		ReplaceTex("AVA_CHSEL_E", "CS_CE_TX", "traducidos", "CS_CE_TX", 365105, 256, 32);
 		ReplaceTex("AVA_CHSEL_E", "cs_sinkou_e", "traducidos", "cs_sinkou_e", 10000035, 64, 32);
 		ReplaceTex("AVA_CHSEL_E", "CS_TX_e", "traducidos", "CS_TX_e", 10000448, 512, 32);
@@ -560,6 +560,13 @@ extern "C"
 		ReplacePVM("SCORE_SHOOT_E_DC", "SCORE_SHOOT_E_sp");
 		ReplacePVM("SCORE_SHOOT_E_HD", "SCORE_SHOOT_E_sp");
 
+		if (MusicaDub)
+		{
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\chaos_p1.wma", "system\\sounddata\\bgm\\wma\\chaos_p1_s.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\mainthem.wma", "system\\sounddata\\bgm\\wma\\mainthem_s.wma");
+			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\sprsonic.wma", "system\\sounddata\\bgm\\wma\\sprsonic_s.wma");
+		}
+		
 		if (Dub == Mexicano)
 		{
 			helperFunctions.ReplaceFile("system\\sounddata\\voice_us\\wma\\0244.wma", "system\\sounddata\\voice_us\\wma\\0244m.wma");
@@ -579,13 +586,6 @@ extern "C"
 		{
 			return;
 		}
-
-		if (MusicaDub)
-		{
-			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\chaos_p1.wma", "system\\sounddata\\bgm\\wma\\chaos_p1_s.wma");
-			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\mainthem.wma", "system\\sounddata\\bgm\\wma\\mainthem_s.wma");
-			helperFunctions.ReplaceFile("system\\sounddata\\bgm\\wma\\sprsonic.wma", "system\\sounddata\\bgm\\wma\\sprsonic_s.wma");
-		}
 	}
 
 	__declspec(dllexport) void __cdecl OnFrame()
@@ -593,6 +593,5 @@ extern "C"
 		VoiceVolume = VoiceVolumeConv;
 		VoiceVolumeBK = VoiceVolumeConv;
 	}
-
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
 }
