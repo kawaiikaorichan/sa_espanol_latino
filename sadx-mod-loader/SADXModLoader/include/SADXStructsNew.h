@@ -2930,7 +2930,7 @@ struct STAFF_DATA
 {
 	unsigned __int8 StaffType;
 	STAFF_DATA_FLAG flag;
-	char* str;
+	const char* str;
 };
 
 struct STAFFROLL_DATA

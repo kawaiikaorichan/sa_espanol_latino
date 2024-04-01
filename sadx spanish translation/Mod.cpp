@@ -1,8 +1,12 @@
 #include "pch.h"
+#include "Creditos.h"
+#include "SADXStructsNew.h"
 const char MyString[] = "Ass";
 
 #define ReplacePVM(a, b) helperFunctions.ReplaceFile("system\\" a ".PVM", "system\\" b ".PVM");
 #define ReplaceTex(pvm, pvr, folder, pngname, gbix, x, y) helperFunctions.ReplaceTexture(pvm, pvr, (std::string(path) + "\\textures\\" folder "\\" pngname ".png").c_str(), gbix, x, y);
+
+HMODULE DCconversion = GetModuleHandle(L"DCMods_Main");
 
 int VoiceVolumeBoost = 5100;
 int VoiceVolumeConv = 0;
@@ -22,6 +26,7 @@ enum Doblaje { Neutro, Mexicano, Chileno };
 
 static bool MusicaDub = true;
 static int Dub = Neutro;
+bool CreditsLoaded = false;
 
 //Arrays
 DataArray(TitleCardTexture, SonicTitleCards, 0x91C358, 10);
@@ -138,7 +143,6 @@ extern "C"
 		WriteData((const char**)0x2BC5838, "Knuckles, Amy, E-102, Big).");
 
 		char pathbuf[MAX_PATH];
-		HMODULE DCconversion = GetModuleHandle(L"DCMods_Main");
 		HMODULE HDGUI = GetModuleHandle(L"HD_GUI");
 		//PVRs
 		ReplacePNG_Common("ST_064S_SCORE");
@@ -592,6 +596,14 @@ extern "C"
 	{
 		VoiceVolume = VoiceVolumeConv;
 		VoiceVolumeBK = VoiceVolumeConv;
+		if (!CreditsLoaded)
+		{
+			if (DCconversion)
+			{
+				LoadSA1DCCredits();
+			}
+			CreditsLoaded = true;
+		}
 	}
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
 }
